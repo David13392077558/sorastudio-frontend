@@ -2,7 +2,7 @@ import axios from 'axios';
 import { authService } from '../services/authService';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_URL,
+  baseURL: (import.meta as any).env.VITE_BACKEND_URL,
   timeout: 30000,
 });
 

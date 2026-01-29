@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_BACKEND_URL;
+const API_BASE = (import.meta as any).env.VITE_BACKEND_URL;
 
 export async function apiPost(path: string, data: any) {
   const res = await fetch(`${API_BASE}${path}`, {
