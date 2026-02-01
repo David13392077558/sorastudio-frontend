@@ -69,7 +69,7 @@ export const apiClient = {
     formData.append('style', params.style);
     if (params.description) formData.append('description', params.description);
 
-    return api.post('/api/ai/generate-prompt', formData);
+    return api.post('/ai/generate-prompt', formData);
   },
 
   // 电商脚本生成
@@ -80,7 +80,7 @@ export const apiClient = {
     formData.append('productDescription', params.productDescription);
     formData.append('style', params.style);
 
-    return api.post('/api/ai/generate-script', formData);
+    return api.post('/ai/generate-script', formData);
   },
 
   // 视频风格分析
@@ -88,12 +88,12 @@ export const apiClient = {
     const formData = new FormData();
     formData.append('video', params.video);
 
-    return api.post('/api/ai/analyze-video', formData);
+    return api.post('/ai/analyze-video', formData);
   },
 
   // 获取任务状态
   getTaskStatus: async (taskId: string) => {
-    return api.get(`/api/tasks/${taskId}`);
+    return api.get(`ks/${taskId}`);
   },
 };
 
