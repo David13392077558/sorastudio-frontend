@@ -9,7 +9,6 @@ const api = axios.create({
 // 请求拦截器
 api.interceptors.request.use(
   (config) => {
-    // 添加认证令牌
     const token = authService.getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -25,10 +24,8 @@ api.interceptors.response.use(
   (error) => {
     console.error('API Error:', error);
 
-    // 处理认证错误
     if (error.response?.status === 401) {
       authService.clearAuth();
-      // 可以在这里触发重新登录的逻辑
       window.location.href = '/login';
     }
 
@@ -55,7 +52,6 @@ export interface AnalyzeVideoParams {
 }
 
 export const apiClient = {
-  // 认证相关
   post: (url: string, data?: any) => api.post(url, data),
   get: (url: string, config?: any) => api.get(url, config),
   put: (url: string, data?: any) => api.put(url, data),
@@ -91,9 +87,9 @@ export const apiClient = {
     return api.post('/ai/analyze-video', formData);
   },
 
-  // 获取任务状态
+  // 获取任务状态（已修复）
   getTaskStatus: async (taskId: string) => {
-    return api.get(`ks/${taskId}`);
+    return api.get(`/ks/${taskId}`);
   },
 };
 
