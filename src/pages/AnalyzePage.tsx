@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { VideoUploader } from '../components/shared/VideoUploader';
 import { ResultCard } from '../components/shared/ResultCard';
-import { apiClient } from '../api/client';
 import { useTaskStore } from '../store/useTaskStore';
 import { useVideoPolling } from '../hooks/useVideoPolling';
 
@@ -19,22 +18,37 @@ export const AnalyzePage: React.FC = () => {
     }
 
     try {
-      const taskId = `task_${Date.now()}`;
+      // 本地任务 ID（用于 UI 立即显示）
+      const localTaskId = `task_${Date.now()}`;
       addTask({
-        id: taskId,
+        id: localTaskId,
         type: 'analysis',
         status: 'pending',
         progress: 0,
       });
-      setCurrentTaskId(taskId);
+      setCurrentTaskId(localTaskId);
 
-      const response = await apiClient.analyzeVideo({
-        video: selectedVideo,
-      });
+      // ⭐ 正确的 FormData 上传方式
+      const formData = new FormData();
+      formData.append("video", selectedVideo);
 
-      if (response.data.taskId) {
-        setCurrentTaskId(response.data.taskId);
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/ai/analyze-video`,
+        {
+          method: "POST",
+          body: formData
+        }
+      );
+
+      const data = await response.json();
+
+      // 后端返回真正的 taskId
+      if (data.taskId) {
+        setCurrentTaskId(data.taskId);
+      } else {
+        alert("后端未返回任务 ID");
       }
+
     } catch (error) {
       console.error('分析失败:', error);
       alert('分析失败，请重试');
