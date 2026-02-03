@@ -87,9 +87,9 @@ export const apiClient = {
     return api.post('/ai/analyze-video', formData);
   },
 
-  // 获取任务状态（已修复）
+  // ⭐ 正确的任务状态查询接口（已修复）
   getTaskStatus: async (taskId: string) => {
-    return api.get(`/ks/${taskId}`);
+    return api.get(`/ai/task-status/${taskId}`);
   },
 };
 
