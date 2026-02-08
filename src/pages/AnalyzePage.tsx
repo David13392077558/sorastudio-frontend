@@ -14,10 +14,11 @@ export const AnalyzePage: React.FC = () => {
 
     try {
       const formData = new FormData();
-      formData.append("file", selectedVideo); // ⭐ 必须是 file（后端 multer.single("file")）
+      formData.append("video", selectedVideo); // ⭐ 改为 "video" (后端 multer.single("video"))
 
+      // ⭐ 改为视频分析接口
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/upload`,
+        `${import.meta.env.VITE_BACKEND_URL}/ai/analyze-video`,
         {
           method: "POST",
           body: formData,
@@ -26,8 +27,8 @@ export const AnalyzePage: React.FC = () => {
 
       const data = await response.json();
 
-      if (!data.success) {
-        alert("上传失败");
+      if (!data.taskId) {
+        alert(data.error || "上传失败");
         return;
       }
 
