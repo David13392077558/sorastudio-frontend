@@ -7,6 +7,7 @@ import { StudioPage } from './pages/StudioPage';
 import { ProjectsPage } from './pages/ProjectsPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { HistoryPage } from './pages/HistoryPage';
+import { TaskStatusPage } from './pages/TaskStatusPage';
 import { authService } from './services/authService';
 
 const Sidebar = () => {
@@ -85,6 +86,7 @@ export default function App() {
             <Route path="/analyze" element={<AnalyzePage />} />
             <Route path="/studio" element={<StudioPage />} />
             <Route path="/ecommerce" element={<EcommercePage />} />
+            <Route path="/task/:taskId" element={<TaskStatusPage />} />
           </Routes>
         </main>
       </div>
