@@ -15,7 +15,7 @@ const CameraCapture: React.FC<CameraCaptureProps> = ({
   const [isActive, setIsActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<number | null>(null);
 
   // 启动摄像头
   const startCamera = async () => {
