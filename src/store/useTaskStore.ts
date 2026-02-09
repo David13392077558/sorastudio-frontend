@@ -25,7 +25,6 @@ export const useTaskStore = create<TaskStore>((set, get) => ({
 
   setCurrentTaskId: (id) => set({ currentTaskId: id }),
 
-  // ⭐ 补上 addTask（EcommercePage 需要）
   addTask: (task) =>
     set((state) => ({
       tasks: {
