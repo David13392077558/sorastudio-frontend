@@ -33,24 +33,6 @@ api.interceptors.response.use(
   }
 );
 
-export interface GeneratePromptParams {
-  image?: File;
-  video?: File;
-  style: string;
-  description?: string;
-}
-
-export interface GenerateScriptParams {
-  productUrl?: string;
-  productImage?: File;
-  productDescription: string;
-  style: string;
-}
-
-export interface AnalyzeVideoParams {
-  video: File;
-}
-
 export const apiClient = {
   post: (url: string, data?: any) => api.post(url, data),
   get: (url: string, config?: any) => api.get(url, config),
@@ -58,7 +40,7 @@ export const apiClient = {
   delete: (url: string) => api.delete(url),
 
   // Sora提示词生成
-  generatePrompt: async (params: GeneratePromptParams) => {
+  generatePrompt: async (params: any) => {
     const formData = new FormData();
     if (params.image) formData.append('image', params.image);
     if (params.video) formData.append('video', params.video);
@@ -69,7 +51,7 @@ export const apiClient = {
   },
 
   // 电商脚本生成
-  generateScript: async (params: GenerateScriptParams) => {
+  generateScript: async (params: any) => {
     const formData = new FormData();
     if (params.productUrl) formData.append('productUrl', params.productUrl);
     if (params.productImage) formData.append('productImage', params.productImage);
@@ -80,17 +62,17 @@ export const apiClient = {
   },
 
   // 视频风格分析
-  analyzeVideo: async (params: AnalyzeVideoParams) => {
+  analyzeVideo: async (params: any) => {
     const formData = new FormData();
     formData.append('video', params.video);
 
     return api.post('/ai/analyze-video', formData);
   },
 
-  // ⭐ 正确的任务状态查询接口（已修复）
-  getTaskStatus: async (taskId: string) => {
-    return api.get(`/ai/task-status/${taskId}`);
-  },
+  // ⭐ 正确的任务查询接口（你后端真实接口）
+  getTask: async (taskId: string) => {
+    return api.get(`/api/task/${taskId}`);
+  }
 };
 
 export default api;
