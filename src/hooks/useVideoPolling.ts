@@ -11,9 +11,12 @@ export const useVideoPolling = (taskId: string | null, interval = 2000) => {
 
     const poll = async () => {
       try {
-        const response = await apiClient.getTaskStatus(taskId);
+        // ⭐ 使用正确的接口
+        const response = await apiClient.getTask(taskId);
 
-        // ⭐ 后端返回结构：{ success, task: {...} }
+        console.log("📡 轮询返回：", response.data);
+
+        // ⭐ 后端返回结构：{ success, task }
         const task = response.data.task;
         if (!task) return;
 
