@@ -13,10 +13,10 @@ export const useVideoPolling = (taskId: string | null, interval = 2000) => {
       try {
         const response = await apiClient.getTask(taskId);
 
-        console.log("📡 轮询返回：", response);
+        console.log("📡 轮询返回：", response.data);
 
-        // 后端返回结构：{ success, task }
-        const task = response.task;
+        // ⭐ axios 返回结构：response.data.task
+        const task = response.data.task;
         if (!task) return;
 
         const { status, progress, result, error } = task;
