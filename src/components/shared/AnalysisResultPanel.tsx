@@ -1,11 +1,18 @@
-import { useAnalysisStore } from "../../store/useAnalysisStore";
+import { useTaskStore } from "../../store/useTaskStore";
 
 export default function AnalysisResultPanel() {
-  const result = useAnalysisStore((s) => s.result);
-  const loading = useAnalysisStore((s) => s.loading);
-  const error = useAnalysisStore((s) => s.error);
+  const currentTaskId = useTaskStore((s) => s.currentTaskId);
+  const task = useTaskStore((s) => s.getTask(currentTaskId || ""));
 
-  if (loading) {
+  const result = task?.result;
+  const status = task?.status;
+  const error = task?.error;
+
+  if (!currentTaskId) {
+    return <div className="p-4 text-gray-400">请先上传视频开始分析</div>;
+  }
+
+  if (status === "processing" || status === "queued") {
     return <div className="p-4 text-blue-400">分析中…</div>;
   }
 
@@ -20,7 +27,6 @@ export default function AnalysisResultPanel() {
   return (
     <div className="p-4 bg-gray-900 text-green-400 rounded-lg font-mono overflow-auto max-h-[400px]">
       <h3 className="text-lg mb-2">分析结果</h3>
-
       <pre>{JSON.stringify(result, null, 2)}</pre>
     </div>
   );
