@@ -6,7 +6,9 @@ export const TaskStatusPage: React.FC = () => {
   const [task, setTask] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // 轮询任务状态
+  // ============================================================
+  // 1. 轮询任务状态
+  // ============================================================
   useEffect(() => {
     if (!taskId) return;
 
@@ -18,7 +20,16 @@ export const TaskStatusPage: React.FC = () => {
         const data = await res.json();
 
         if (data.success) {
-          setTask(data.task);
+          const raw = data.task;
+
+          // ⭐ 关键修复：兼容 Worker 写入 "done"、后端返回 "completed"
+          const normalizedStatus =
+            raw.status === "done" ? "completed" : raw.status;
+
+          setTask({
+            ...raw,
+            status: normalizedStatus,
+          });
         }
       } catch (err) {
         console.error("任务查询失败:", err);
@@ -27,15 +38,14 @@ export const TaskStatusPage: React.FC = () => {
       }
     };
 
-    // 立即执行一次
     fetchTask();
-
-    // 每 2 秒轮询
     const timer = setInterval(fetchTask, 2000);
-
     return () => clearInterval(timer);
   }, [taskId]);
 
+  // ============================================================
+  // 2. 加载状态
+  // ============================================================
   if (loading) {
     return <div className="text-center py-20">加载中...</div>;
   }
@@ -44,28 +54,33 @@ export const TaskStatusPage: React.FC = () => {
     return <div className="text-center py-20 text-red-500">任务不存在</div>;
   }
 
+  // ============================================================
+  // 3. 状态映射（加入 completed）
+  // ============================================================
   const statusMap: Record<string, string> = {
     queued: "排队中",
     processing: "处理中",
-    done: "完成",
+    completed: "完成",   // ⭐ 新增
+    done: "完成",        // 兼容旧值
     failed: "失败",
   };
 
   const statusColor: Record<string, string> = {
     queued: "bg-yellow-100 text-yellow-800",
     processing: "bg-blue-100 text-blue-800",
+    completed: "bg-green-100 text-green-800", // ⭐ 新增
     done: "bg-green-100 text-green-800",
     failed: "bg-red-100 text-red-800",
   };
 
-  // ⭐ 防崩溃的智能解析逻辑
+  // ============================================================
+  // 4. 解析 result（保持你的原逻辑）
+  // ============================================================
   const parsedResult = React.useMemo(() => {
     if (!task.result) return null;
-    
-    // 如果已经是对象，直接返回
+
     if (typeof task.result === "object") return task.result;
-    
-    // 如果是字符串，尝试解析
+
     if (typeof task.result === "string") {
       try {
         return JSON.parse(task.result);
@@ -74,10 +89,13 @@ export const TaskStatusPage: React.FC = () => {
         return null;
       }
     }
-    
+
     return null;
   }, [task.result]);
 
+  // ============================================================
+  // 5. UI 渲染
+  // ============================================================
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       <h1 className="text-3xl font-bold">任务状态</h1>
@@ -98,7 +116,6 @@ export const TaskStatusPage: React.FC = () => {
           </span>
         </div>
 
-        {/* 时间戳 */}
         {task.updatedAt && (
           <div className="mt-4 pt-4 border-t text-sm text-gray-500">
             更新时间: {new Date(parseInt(task.updatedAt)).toLocaleString("zh-CN")}
@@ -106,7 +123,14 @@ export const TaskStatusPage: React.FC = () => {
         )}
       </div>
 
-      {/* 处理中状态 */}
+      {/* 排队中 */}
+      {task.status === "queued" && (
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 p-6 rounded-lg">
+          <p className="font-medium">⏳ 任务已加入队列，等待处理中...</p>
+        </div>
+      )}
+
+      {/* 处理中 */}
       {task.status === "processing" && (
         <div className="bg-blue-50 border border-blue-200 text-blue-700 p-6 rounded-lg">
           <div className="flex items-center space-x-3">
@@ -116,15 +140,8 @@ export const TaskStatusPage: React.FC = () => {
         </div>
       )}
 
-      {/* 排队中状态 */}
-      {task.status === "queued" && (
-        <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 p-6 rounded-lg">
-          <p className="font-medium">⏳ 任务已加入队列，等待处理中...</p>
-        </div>
-      )}
-
-      {/* 结果展示 - 100%防崩溃 */}
-      {task.status === "done" && parsedResult && (
+      {/* ⭐ 分析结果（关键修复：status === "completed"） */}
+      {task.status === "completed" && parsedResult && (
         <div className="bg-white border border-gray-200 rounded-lg p-6 shadow space-y-4">
           <h2 className="text-xl font-semibold text-green-600">✅ 分析完成</h2>
 
@@ -132,8 +149,8 @@ export const TaskStatusPage: React.FC = () => {
             <div className="p-4 border rounded-lg bg-gradient-to-br from-purple-50 to-white">
               <p className="text-gray-500 text-sm mb-1">🎨 风格标签</p>
               <p className="font-medium text-lg">
-                {parsedResult.style_tags?.length > 0 
-                  ? parsedResult.style_tags.join(", ") 
+                {parsedResult.style_tags?.length > 0
+                  ? parsedResult.style_tags.join(", ")
                   : "未检测到"}
               </p>
             </div>
@@ -148,8 +165,8 @@ export const TaskStatusPage: React.FC = () => {
             <div className="p-4 border rounded-lg bg-gradient-to-br from-green-50 to-white">
               <p className="text-gray-500 text-sm mb-1">⏱️ 时长</p>
               <p className="font-medium text-lg">
-                {parsedResult.duration 
-                  ? `${parsedResult.duration.toFixed(2)}秒` 
+                {parsedResult.duration
+                  ? `${parsedResult.duration.toFixed(2)}秒`
                   : "N/A"}
               </p>
             </div>
@@ -173,7 +190,7 @@ export const TaskStatusPage: React.FC = () => {
         </div>
       )}
 
-      {/* 失败状态 */}
+      {/* 失败 */}
       {task.status === "failed" && (
         <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-lg">
           <p className="font-bold text-lg mb-2">❌ 任务失败</p>
